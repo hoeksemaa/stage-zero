@@ -85,6 +85,31 @@ TOOLS = [
             "required": ["claim", "basis", "confidence"],
         },
     },
+    {
+        "name": "lookup_countries",
+        "description": (
+            "Look up countries and regions from the reference dataset. "
+            "Use this to find which countries belong to a region, which region a country is in, "
+            "or to get the full list of recognized countries. "
+            "Call with a region name to get all countries in that region, "
+            "a country name or alpha-3 code to get its region, "
+            "or 'all_regions' to get the list of regions and their descriptions."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": (
+                        "A region key (e.g. 'asia_pacific', 'europe'), "
+                        "a country name or alpha-3 code (e.g. 'Japan', 'JPN'), "
+                        "or 'all_regions' for the full region list."
+                    ),
+                },
+            },
+            "required": ["query"],
+        },
+    },
 ]
 
 
@@ -142,11 +167,41 @@ def log_assumption(claim: str, basis: str, confidence: str) -> str:
     return json.dumps({"assumption": claim, "basis": basis, "confidence": confidence})
 
 
+COUNTRIES_DATA = json.loads(Path("countries.json").read_text())
+
+
+def lookup_countries(query: str) -> str:
+    q = query.strip().lower()
+
+    # Return all regions and their descriptions
+    if q == "all_regions":
+        return json.dumps({"regions": COUNTRIES_DATA["regions"]})
+
+    # Check if query matches a region key
+    if q in COUNTRIES_DATA["regions"]:
+        region = COUNTRIES_DATA["regions"][q]
+        countries = [c for c in COUNTRIES_DATA["countries"] if c["region"] == q]
+        return json.dumps({"region": q, "info": region, "countries": countries})
+
+    # Check if query matches a country name or alpha-3 code
+    for c in COUNTRIES_DATA["countries"]:
+        if q == c["alpha3"].lower() or q == c["name"].lower():
+            return json.dumps({"country": c, "region_info": COUNTRIES_DATA["regions"].get(c["region"])})
+
+    # Fuzzy: substring match on country name
+    matches = [c for c in COUNTRIES_DATA["countries"] if q in c["name"].lower()]
+    if matches:
+        return json.dumps({"matches": matches})
+
+    return json.dumps({"error": f"No match for '{query}'", "available_regions": list(COUNTRIES_DATA["regions"].keys())})
+
+
 DISPATCH = {
     "search": lambda inp: search(inp["query"]),
     "fetch_url": lambda inp: fetch_url(inp["url"]),
     "calculate": lambda inp: calculate(inp["expression"], inp["label"]),
     "log_assumption": lambda inp: log_assumption(inp["claim"], inp["basis"], inp.get("confidence", "moderate")),
+    "lookup_countries": lambda inp: lookup_countries(inp["query"]),
 }
 
 
@@ -413,6 +468,14 @@ def run(query: str) -> str:
                 "tool_use_id": block.id,
                 "content": result,
             })
+
+        if not tool_results:
+            # Model stopped without end_turn but produced no tool calls.
+            # Treat it as a final response to avoid sending empty content.
+            text = "\n".join(b.text for b in response.content if b.type == "text")
+            audit_path = audit.write()
+            print(f"\n  [audit log written to {audit_path}]")
+            return text
 
         messages.append({"role": "user", "content": tool_results})
 
