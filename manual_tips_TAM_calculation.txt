@@ -1,0 +1,24 @@
+TIPS Procedure Volume: US Annual Estimates (2018–2022)
+
+DATA SOURCE
+HCUP National Inpatient Sample (NIS) Diagnosis and Procedure Frequency Tables
+(HCUP_NIS2016_2023_DXandPRfreqs.xlsx, Table 4: By PR Code)
+Published by: Agency for Healthcare Research and Quality (AHRQ), U.S. DHHS
+Download: https://hcup-us.ahrq.gov/db/nation/nis/nisdbdocumentation.jsp
+File created: 02/04/2026
+
+ICD-10-PCS codes used:
+  06183J4 - Bypass Portal Vein to Hepatic Vein with Synthetic Substitute, Percutaneous Approach
+  06184J4 - Same procedure, Percutaneous Endoscopic Approach (coding variant, same clinical procedure)
+
+ESTIMATED US TIPS PROCEDURES PER YEAR (Weighted, Principal Procedure)
+  2018: ~5,280
+  2019: ~5,460
+  2020: ~5,200
+  2021: ~5,140
+  2022: ~5,520
+
+REASONING AND EPISTEMIC CERTAINTY
+The NIS is a 20% stratified sample of all US community hospital discharges, weighted by a factor of 5 to produce national estimates. For TIPS, this means each year's estimate is derived from roughly 1,000-1,100 actual observed discharges. The NIS covers more than 97% of the US population across all payers and is the standard dataset used in virtually all published US procedure volume research for TIPS.
+
+These estimates are directionally reliable but not precise measurements. TIPS is concentrated at a relatively small number of high-volume academic centers, which makes the estimate more sensitive to which hospitals happen to fall in the sample in a given year. Unstated confidence intervals are probably +/-15-20%, meaning the true annual volume could plausibly range from roughly 4,500 to 6,500. The claim that US TIPS volume is approximately 5,000 per year is well-supported; the claim that any specific year differs meaningfully from another (e.g., a COVID dip in 2020) is less certain, as year-to-year differences of 200-400 procedures are within sampling noise. Consistency with multiple independent NIS-based studies covering 1998-2013, which all report ~5,500-6,000/yr, provides additional confidence that the order of magnitude is correct. No independent non-NIS data source was used to cross-validate. For TAM purposes, "approximately 5,000 US TIPS procedures per year" is a defensible estimate from the best available public data.
