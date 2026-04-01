@@ -344,9 +344,24 @@ def run(query: str) -> str:
         messages.append({"role": "assistant", "content": response.content})
 
         if response.stop_reason == "end_turn":
+            text = "\n".join(b.text for b in response.content if b.type == "text")
+
+            # If no tools have been used yet, the model is asking clarifying
+            # questions — print the text, collect user input, and continue.
+            has_done_work = any(
+                any(b.type == "tool_use" for b in m["content"])
+                for m in messages
+                if m["role"] == "assistant" and isinstance(m["content"], list)
+            )
+            if not has_done_work:
+                print(text)
+                follow_up = input("\n> ")
+                messages.append({"role": "user", "content": follow_up})
+                continue
+
             audit_path = audit.write()
             print(f"\n  [audit log written to {audit_path}]")
-            return "\n".join(b.text for b in response.content if b.type == "text")
+            return text
 
         tool_results = []
         for block in response.content:
