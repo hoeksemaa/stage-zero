@@ -1,0 +1,6 @@
+sentence-transformers
+umap-learn
+plotly
+numpy
+scikit-learn
+pandas
